@@ -52,7 +52,7 @@
                             arg = String.fromCharCode(arg);
                             break;
                         case 'd':
-                            arg = parseInt(arg, 10);
+                            arg = arg >> 0;
                             break;
                         case 'e':
                             arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential();
@@ -77,7 +77,7 @@
                             break;
                     }
                     arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+' + arg : arg);
-                    pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
+                    pad_character = match[4] ? match[4] === '0' ? '0' : match[4].charAt(1) : ' ';
                     pad_length = match[6] - String(arg).length;
                     pad = match[6] ? str_repeat(pad_character, pad_length) : '';
                     output.push(match[5] ? arg + pad : pad + arg);
@@ -146,7 +146,7 @@
         };
 
         this.stateChange = function (object) {
-            if (this.request.readyState == 4)
+            if (this.request.readyState === 4)
                 this.callbackFunction(this.request.responseText);
         };
 
@@ -277,7 +277,7 @@
              * @param amount
              */
             this.setCount = function (amount) {
-                phrase_count = parseInt(amount, 10);
+                phrase_count = amount >> 0;
             };
             /**
              * Cast entry as a string
@@ -314,11 +314,11 @@
                 var extract_header_info = function (header) {
                     var header_lines = header.split("\n");
                     for (var i = 0, j = header_lines.length; i < j; i++) {
-                        if (header_lines[i].indexOf('"Plural-Forms: nplurals') == 0) {//parse plural forms
+                        if (header_lines[i].indexOf('"Plural-Forms: nplurals') === 0) {//parse plural forms
                             var plural_form = header_lines[i].substring(14).slice(0, -1);
                             me.storage.calculatePluralIndex = function (n) {
                                 eval(unescapeString(plural_form));
-                                if(typeof(plural) == 'undefined'){
+                                if(typeof(plural) === 'undefined'){
                                     plural = 0;
                                 }
                                 return plural;
@@ -331,7 +331,7 @@
                 var has_header_info;
                 var header_info;
                 var part;
-                var domain = ( typeof (translation_domain) == 'undefined') ? 'messages' : translation_domain;
+                var domain = ( typeof (translation_domain) === 'undefined') ? 'messages' : translation_domain;
                 var parts = [];
                 var counter = 0;
                 text = text.replace(/\r\n|\r/g, "\n");
@@ -471,7 +471,7 @@
         var loadByLink = function (resource, format, translation_domain) {
             var result;
             var link = document.getElementById(resource);
-            if (!!link && !!link.type && link.type == 'text/x-gettext-translation') {
+            if (!!link && !!link.type && link.type === 'text/x-gettext-translation') {
                 result = loadByAjax(link.href, format, translation_domain);
             }
 
@@ -554,7 +554,7 @@
                 if (!!context) {
                     for (var i = 0, j = me.storage.contents[domain][escaped].length; i < j; i++) {
 
-                        if (entry.context && entry.context == context) {
+                        if (entry.context && entry.context === context) {
                             translation = me.storage.contents[domain][escaped][i];
                             break;
                         }
@@ -569,7 +569,7 @@
                     entry.setCount(count);
                 }
 
-                var is_bare_string = (entry.constructor == String());
+                var is_bare_string = (entry.constructor === String());
                 if (me.returnStrings) {
                     translation = entry.toString();
                 }
