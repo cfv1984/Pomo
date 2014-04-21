@@ -1,0 +1,120 @@
+<DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="gettext" type="text/x-gettext-translation" href="./po/pl_PL.po" />
+        <title>Pomo browser based tests</title>
+        <script>
+            var log = console.log.bind(console);
+
+            var CustomError = function (message) {
+                this.name = 'CustomError';
+                this.message = message;
+                this.stack = (new Error()).stack;
+            };
+            var AssertionError = function () {
+                CustomError.apply(this, arguments);
+                this.name = 'AssertionError';
+            };
+            AssertionError.prototype = CustomError.prototype;
+            AssertionError.constructor = CustomError;
+            var assert = function (candidate, condition, error_message, success_message) {
+                if (!condition.call(condition, candidate)) {
+                    throw new AssertionError(error_message);
+                }
+                else {
+                    log(success_message)
+                }
+            };
+            var assertTrue = function (candidate) {
+                return assert(candidate, function (testable) {
+                            return (candidate === true && true === testable);
+                        },
+                                'candidate ' + candidate + ' is not true',
+                        'candidate is true');
+            };
+            var assertFalse = function (candidate) {
+                return assert(candidate, function (testable) {
+                            return (candidate === false && false === testable);
+                        },
+                                'candidate ' + candidate + ' is not false',
+                        'candidate is false');
+
+            };
+            var assertEquals = function (candidate, result, error_msg, success_msg) {
+                error_msg = !error_msg ? "assertion failed" : error_msg;
+                success_msg = !success_msg ? "assertion confirmed" : success_msg;
+                return assert(candidate, function (candidate) {
+                    return candidate === result && result === candidate
+                }, error_msg, success_msg);
+            };
+        </script>
+    </head>
+    <body>
+    <script src="../src/pomo.js">
+    </script>
+    <script>
+        var literal_conf = {
+            format: 'po',
+            mode: 'literal',
+            translation_domain: 'default_domain'
+        },
+        file_conf = {
+            format: 'po',
+            mode: 'file',
+            translation_domain: 'default_domain'
+        },
+        link_conf = {
+            format: 'po',
+            mode: 'link',
+            translation_domain: 'default_domain'
+        };
+
+        var testPomoLoadsLiteral = function () {
+            Pomo.load('#: /path/to/file.php:110 \n\
+                msgctxt "some context" \n\
+                msgid "" \n\
+                "Multi" \n\
+                "Line" \n\
+                "msgid" \n\
+                msgstr "Una cadena de mensaje" \n\
+                \
+            ', literal_conf);
+
+            var message = Pomo.getText("Multi\nLine\n\msgid\n", { domain: 'default_domain' });
+            console.info(
+                    'provided "',
+                    message.toString(),
+                    '" wanted "',
+                    'Una cadena de mensaje',
+                    '" equals?',
+                    message.toString() === 'Una cadena de mensaje'
+                    && 'Una cadena de mensaje' === message.toString()
+            );
+
+        };
+        var testPomoLoadsLinks = function(){
+            var waiter = Pomo.load(null, link_conf);
+            waiter.ready(function(){
+                var message = Pomo.getText("Register For This Site",{'domain':'default_domain'});
+                console.info(
+                    'provided "',
+                    message.toString(),
+                    '" wanted "',
+                    'Zarejestruj się na tej witrynie',
+                    '" equals?',
+                    message.toString() === 'Zarejestruj się na tej witrynie'
+                    && 'Zarejestruj się na tej witrynie' === message.toString()
+                );
+            });
+        };
+        window.addEventListener('load', function () {
+            Pomo.wipe();
+            testPomoLoadsLiteral();
+
+            Pomo.wipe();
+            testPomoLoadsLinks();
+        });
+    </script>
+    </body>
+    </html>
