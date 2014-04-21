@@ -1,6 +1,7 @@
 "use strict";
+
 describe("Pomo tests", function() {
-    var Pomo = require('../src/Pomo'),
+    var Pomo = require(__dirname + '/../src/Pomo'),
         literal_conf = {
             format: 'po',
             mode: 'literal',
