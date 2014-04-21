@@ -1,0 +1,7 @@
+#: /path/to/file.php:110
+msgctxt "some context"
+msgid ""
+"Multi"
+"Line"
+"msgid"
+msgstr "Una cadena de mensaje"

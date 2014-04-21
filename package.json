@@ -1,0 +1,32 @@
+{
+  "name": "pomo",
+  "version": "0.0.0",
+  "description": "0.0.2",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cfv1984/Pomo.git"
+  },
+  "keywords": [
+    "PO",
+    "Javascript",
+    "PO",
+    "parser"
+  ],
+  "author": "Carlos Vergara <hi@carlosvergara.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cfv1984/Pomo/issues"
+  },
+  "homepage": "https://github.com/cfv1984/Pomo",
+  "devDependencies": {
+    "gulp-jasmine": "^0.2.0",
+    "gulp": "^3.6.1"
+  }
+}
