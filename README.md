@@ -37,11 +37,8 @@ window.onload = function() {
     Pomo.load('\
         #: /path/to/file.php:110 \
         msgctxt "some context" \
-        msgid "" \
-        msgid "A very" \
-        msgid "Multiline" \
-        msgid "Message ID" \
-        msgstr "A Message String" \
+        msgid "String to translate, with %s markers" \
+        msgstr "Cadena a traducir, con marcadores de %s" \
     ', //the literal PO contents
     {
         format: 'po', // the file format, can potentially be 'po' or 'mo'
@@ -53,7 +50,7 @@ window.onload = function() {
     p.appendChild(
     document.createTextNode(
     Pomo.getText("String to translate, with %s markers", {
-        variables: ["printf-ish"], //only needed if you pass markers
+        variables: ["tipo printf"], //only needed if you pass markers
         context: 'optional context',
         /* if there is a context, a search is made
                              for the translation mapping to it               */
