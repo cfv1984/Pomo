@@ -471,6 +471,7 @@
         }
 
         /**
+         * Determines if the sought entry actually exist
          *
          * @param domain
          * @param escaped
@@ -762,6 +763,7 @@
 
         /**
          * Get a particular translation
+         *
          * @param msg_id
          * @param options
          * @return Pomo.Parser.Object|String
@@ -836,6 +838,7 @@
 
         /**
          * Get the map of loaded msg_ids
+         * 
          * @returns {}
          */
         this.getMap = function () {
