@@ -1,7 +1,6 @@
 (function (ctx)
 {
-    var noop = function () {
-    }, sprintf, vsprintf, isBrowser, escapeString, unescapeString, Errors;
+    var noop = function () {}, sprintf, vsprintf, isBrowser, escapeString, unescapeString, Errors;
 
     /**
      * Add trimming to the String type. It is something that should be present anyway.
