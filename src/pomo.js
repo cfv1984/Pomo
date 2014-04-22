@@ -290,12 +290,12 @@
      * @constructor
      */
     var Pomo = function () {
-        this.VERSION = '0.1.1'; // Pomo version
+        this.VERSION = '0.1.3';
         this.domain = 'messages';
         this.returnStrings = false;
         this.unescapeStrings = false;
 
-        var me = this, Adapters = {}, getWaiter, entryExists;
+        var me = this, Parser, Adapters = {}, getWaiter, entryExists;
 
         /**
          * Creates a deferred object taking a callback which will be run as soon as the parser can run it
@@ -354,7 +354,7 @@
             loadContents: function () {
                 me.waiting = true;
                 if (this.parsed === null) {
-                    this.parsed = me.Parser.po.parse(this.unparsed, this.domain);
+                    this.parsed = Parser.POFiles.parse(this.unparsed, this.domain);
                 }
                 me.storage.contents = this.parsed;
                 me.waiting = false;
@@ -378,7 +378,7 @@
                     me.waiting = true;
                     require('fs').readFile(this.path, 'utf-8', function (err, data) {
                         if (!err) {
-                            me.storage.contents = me.Parser.po.parse(data, this.domain);
+                            me.storage.contents = Parser.POFiles.parse(data, this.domain);
                             me.waiting = false;
                         }
                         else {
@@ -483,7 +483,7 @@
 
 
         me.storage = {};
-        me.Parser = {};
+        Parser = {};
 
         /**
          * Defines a PO catalog entry based on the info extracted from a raw catalog entry
@@ -491,7 +491,7 @@
          * @param msg
          * @constructor
          */
-        me.Parser.Object = function (msg) {
+        Parser.Object = function (msg) {
             var phrase_count = 1;
             //singular by default
             for (var key in msg) {
@@ -528,7 +528,7 @@
          *
          * @type {{parse: Function, generate: Function}}
          */
-        me.Parser.po = {
+        Parser.POFiles = {
             /**
              * Parse a PO-formatted string into a series of catalog entries
              *
@@ -537,7 +537,8 @@
              * @returns Object (a Dictionary with msgid for keys)
              */
             parse: function (text, translation_domain) {
-                var getTelltale, extractHeaderInfo, isMultilinePlural, multiLineExtract;
+                var getTelltale, extractHeaderInfo, isMultilinePlural, multilineExtract;
+
                 /**
                  * Grab the first word of the line to tell what type of entity it is
                  *
@@ -556,7 +557,7 @@
                  */
                 isMultilinePlural = function (line) {
                     return (!!line && line.match(/msgstr\[[0-9]\]/));
-                }
+                };
 
                 /**
                  * Pull the header information from the first complete block in the string
@@ -585,7 +586,8 @@
                             }
                         }
                     }
-                },
+                };
+
                 /**
                  * Walk the lines for this part until the entire multiline buffer is recovered
                  *
@@ -693,7 +695,7 @@
                     }
 
                     if (!!message.id && !!message.translation) {
-                        message = new me.Parser.Object(message);
+                        message = new Parser.Object(message);
                         escaped = escapeString(message.id);
                         if (!parsed[domain][message.id]) {
                             parsed[domain][escaped] = [message];
