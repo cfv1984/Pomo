@@ -1,120 +1,222 @@
 <DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="gettext" type="text/x-gettext-translation" href="./po/pl_PL.po" />
-        <title>Pomo browser based tests</title>
-        <script>
-            var log = console.log.bind(console);
+<html>
+<head>
+    <meta charset="utf-8">
 
-            var CustomError = function (message) {
-                this.name = 'CustomError';
-                this.message = message;
-                this.stack = (new Error()).stack;
+    <link rel="stylesheet" type="text/css" href="browser/jasmine.css">
+    <script type="text/javascript" src="browser/jasmine.js"></script>
+    <script type="text/javascript" src="browser/jasmine-helpers.js"></script>
+    <script type="text/javascript" src="browser/jasmine-html.js"></script>
+    <script type="text/javascript" src="browser/jasmine.async.js"></script>
+
+    <link rel="gettext" type="text/x-gettext-translation" href="./po/pl_PL.po"/>
+    <link rel="gettext" type="text/x-gettext-translation" href="./po/minisample.po"/>
+    <title>Pomo browser based tests</title>
+    <script>
+        var log = console.log.bind(console), info = console.info.bind(console);
+        var queue = function () {
+            var me = this;
+            var error_handler;
+            var finally_handler;
+
+            var handle_pass_fail = function (text) {
+                if (text.indexOf('__QUEUE_OK_MESSAGE: ') !== -1) {
+                    var next_step = me.advanceStep();
+                    me.run(next_step);
+
+                    return true;
+                }
+                else if (text.indexOf('__QUEUE_ERR_MESSAGE: ') !== -1) {
+                    error_handler(arguments);
+                    return true;
+                }
+                else return false;
             };
-            var AssertionError = function () {
-                CustomError.apply(this, arguments);
-                this.name = 'AssertionError';
+            var follow_message = function (message) {
+                var me = this;
+                me.name = '__QUEUE_OK_MESSAGE';
+                me.message = message;
+                me.toString = function () {
+                    return (me.name + ': ' + me.message)
+                };
+                me.stack = (new Error()).stack;
             };
-            AssertionError.prototype = CustomError.prototype;
-            AssertionError.constructor = CustomError;
-            var assert = function (candidate, condition, error_message, success_message) {
-                if (!condition.call(condition, candidate)) {
-                    throw new AssertionError(error_message);
+            var error_message = function (message) {
+                var me = this;
+                me.name = '__QUEUE_ERR_MESSAGE';
+                me.message = message;
+                me.toString = function () {
+                    return (me.name + ': ' + me.message)
+                };
+                me.stack = (new Error()).stack;
+            };
+            var steps = [];
+            var wrap = function (step) {
+                return function () {
+                    try {
+                        var fail_step = function (message) {
+                            message = !message ? 'unknown' : message;
+                            throw new error_message(message);
+                        };
+                        var pass_step = function (message) {
+                            message = !message ? 'ok' : message;
+                            throw new follow_message(message);
+                        };
+                        step.call(step, pass_step, fail_step);
+                    }
+                    catch (e) {
+                        if (e instanceof follow_message) {
+                            var next_step = me.advanceStep();
+                            me.run(next_step);
+                        }
+                        else if (e instanceof error_message) {
+                            error_handler.call(error_handler, error_message);
+                        }
+                    }
+                }
+            };
+            me.advanceStep = function () {
+                var step = null;
+                if (steps.length > 0) {
+                    step = steps.shift();
+                    return step;
+                }
+            };
+            me.then = function (step) {
+                steps.push(wrap(step));
+                return me;
+            };
+            me.run = function (step) {
+                if (!step) {
+                    step = me.advanceStep();
+                    if (!step) {
+                        return;
+                    }
+                    me.run(step);
                 }
                 else {
-                    log(success_message)
+                    step.call(step);
                 }
             };
-            var assertTrue = function (candidate) {
-                return assert(candidate, function (testable) {
-                            return (candidate === true && true === testable);
-                        },
-                                'candidate ' + candidate + ' is not true',
-                        'candidate is true');
+            me.error = function (handler) {
+                error_handler = handler;
+                return this;
             };
-            var assertFalse = function (candidate) {
-                return assert(candidate, function (testable) {
-                            return (candidate === false && false === testable);
-                        },
-                                'candidate ' + candidate + ' is not false',
-                        'candidate is false');
 
-            };
-            var assertEquals = function (candidate, result, error_msg, success_msg) {
-                error_msg = !error_msg ? "assertion failed" : error_msg;
-                success_msg = !success_msg ? "assertion confirmed" : success_msg;
-                return assert(candidate, function (candidate) {
-                    return candidate === result && result === candidate
-                }, error_msg, success_msg);
-            };
-        </script>
-    </head>
-    <body>
-    <script src="../src/pomo.js">
+            window.onerror = handle_pass_fail;
+        };
     </script>
-    <script>
-        var literal_conf = {
-            format: 'po',
-            mode: 'literal',
-            translation_domain: 'default_domain'
-        },
-        file_conf = {
-            format: 'po',
-            mode: 'file',
-            translation_domain: 'default_domain'
-        },
-        link_conf = {
-            format: 'po',
-            mode: 'link',
-            translation_domain: 'default_domain'
+</head>
+<body>
+<script src="../src/dist/pomo.js"></script>
+<script type="text/javascript" src="browser/pomo.js"></script>
+
+<script type="text/javascript" src="browser/requires/errors.js"></script>
+<script type="text/javascript" src="browser/errors.js"></script>
+<script type="text/javascript" src="browser/requires/providers.js"></script>
+<script type="text/javascript" src="browser/providers.js"></script>
+<script>
+    var literal_conf = {
+        format: 'po',
+        mode: 'literal',
+        translation_domain: 'default_domain'
+    };
+    var link_conf = {
+        format: 'po',
+        mode: 'link',
+        translation_domain: 'default_domain'
+    };
+    var ajax_conf = {
+        format: 'po',
+        mode: 'ajax',
+        translation_domain: 'default_domain'
+    };
+    var small_po_literal = '\
+        #: /path/to/file.php:110 \n\
+        msgctxt "some context" \n\
+        msgid "" \n\
+        "Multi" \n\
+        "Line" \n\
+        "msgid" \n\
+        msgstr "Una cadena de mensaje" \n\
+    ';
+//    var report = function(candidate,witness){
+//        info(
+//                'Candidate "',
+//                candidate,
+//                '" Witness "',
+//                witness,
+//                '". Same?',
+//                candidate === witness && witness === candidate
+//        );
+//    };
+//    var testPomoLoadsLiteral = function (pass, fail) {
+//        log('Does pomo load a literal?');
+//        Pomo.load(small_po_literal, literal_conf);
+//        Pomo.ready(function () {
+//            var message = Pomo.getText("Multi\nLine\n\msgid\n", { domain: 'default_domain' });
+//            info('Reading from a literal string');
+//            report(message.toString(), "Una cadena de mensaje");
+//            pass();
+//        });
+//    };
+//    var testPomoLoadsLinks = function (pass, fail) {
+//        log('Does pomo load from a bunch of links?');
+//        var waiter = Pomo.load(null, link_conf);
+//        Pomo.ready(function () {
+//            var message = Pomo.getText("Register For This Site", {
+//                'domain': 'messages'
+//            });
+//            info('Loaded from a link node');
+//            report(message.toString(), 'Zarejestruj się na tej witrynie');
+//            pass("I Just read from a link");
+//        });
+//    };
+//    var testPomoLoadsFromAjax = function (pass, fail) {
+//        log('Does pomo read files with AJAX?');
+//        var url = window.location.toString() + '/../po/pl_PL.po';
+//        Pomo.load(url, ajax_conf);
+//
+//        Pomo.ready(function () {
+//            var message = Pomo.getText("Register For This Site", {
+//                'domain': 'default_domain'
+//            });
+//            info('Loaded from an URL');
+//            report(message.toString(), 'Zarejestruj się na tej witrynie');
+//            pass('lei de un archivo');
+//        });
+//    };
+//    var wipePomo = function (pass, fail) {
+//        Pomo.wipe();
+//        pass();
+//    }
+
+    (function() {
+        var jasmineEnv = jasmine.getEnv();
+        jasmineEnv.updateInterval = 1000;
+
+        var htmlReporter = new jasmine.HtmlReporter();
+
+        jasmineEnv.addReporter(htmlReporter);
+
+        jasmineEnv.specFilter = function(spec) {
+            return htmlReporter.specFilter(spec);
         };
 
-        var testPomoLoadsLiteral = function () {
-            Pomo.load('#: /path/to/file.php:110 \n\
-                msgctxt "some context" \n\
-                msgid "" \n\
-                "Multi" \n\
-                "Line" \n\
-                "msgid" \n\
-                msgstr "Una cadena de mensaje" \n\
-                \
-            ', literal_conf);
+        var currentWindowOnload = window.onload;
 
-            var message = Pomo.getText("Multi\nLine\n\msgid\n", { domain: 'default_domain' });
-            console.info(
-                    'provided "',
-                    message.toString(),
-                    '" wanted "',
-                    'Una cadena de mensaje',
-                    '" equals?',
-                    message.toString() === 'Una cadena de mensaje'
-                    && 'Una cadena de mensaje' === message.toString()
-            );
-
+        window.onload = function() {
+            if (currentWindowOnload) {
+                currentWindowOnload();
+            }
+            execJasmine();
         };
-        var testPomoLoadsLinks = function(){
-            var waiter = Pomo.load(null, link_conf);
-            waiter.ready(function(){
-                var message = Pomo.getText("Register For This Site",{'domain':'default_domain'});
-                console.info(
-                    'provided "',
-                    message.toString(),
-                    '" wanted "',
-                    'Zarejestruj się na tej witrynie',
-                    '" equals?',
-                    message.toString() === 'Zarejestruj się na tej witrynie'
-                    && 'Zarejestruj się na tej witrynie' === message.toString()
-                );
-            });
-        };
-        window.addEventListener('load', function () {
-            Pomo.wipe();
-            testPomoLoadsLiteral();
 
-            Pomo.wipe();
-            testPomoLoadsLinks();
-        });
-    </script>
-    </body>
-    </html>
+        function execJasmine() {
+            jasmineEnv.execute();
+        }
+
+    })();
+</script>
+</body>
+</html>

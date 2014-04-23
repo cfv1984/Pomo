@@ -1,7 +1,6 @@
-var AsyncSpec = require('jasmine-async')(jasmine);
-
-describe('The main Pomo object', function() {
+describe("The main Pomo object", function() {
     var async = new AsyncSpec(this);
+
     beforeEach(function() {
         Pomo.wipe();
     });
@@ -9,7 +8,7 @@ describe('The main Pomo object', function() {
         Pomo.wipe();
     });
 
-    var Pomo = require(__dirname + '/../src/dist/pomo'),
+    var Pomo = window.Pomo,
         literal_conf = {
             format: 'po',
             mode: 'literal',
@@ -33,29 +32,17 @@ describe('The main Pomo object', function() {
     Pomo.returnStrings = true;
     Pomo.unescapeStrings = true;
 
-    async.it("should be able to parse a string literal", function(done) {
+    async.it("can parse a string literal", function(done) {
         Pomo.wipe();
         Pomo.load(small_po_literal, literal_conf);
         Pomo.ready(function(){
             var message = Pomo.getText("Multi\nLine\n\msgid\n",{ domain:'default_domain' });
-                expect(message).toBe("Una cadena de mensaje");
-                done();
+            expect(message).toBe("Una cadena de mensaje");
+            done();
         });
     });
-
-    async.it("should be able to parse a file into a Pomo object", function(done){
-        Pomo.wipe();
-        waitsFor(function() {
-            return !Pomo.waiting;
-        },'Pomo to parse the literal',1000);
-
-        Pomo.load(__dirname+'/po/minisample.po', file_conf);
-
-        Pomo.ready(function(){
-            var message = Pomo.getText("Multi\nLine\n\msgid\n",{ domain:'default_domain' });
-                expect(message).toBe("Una cadena de mensaje");
-                done();
-        });
+    async.it("can read specially formatted link tags ", function(done){
+        expect(true).toBeTruthy();
+        done();
     });
-
 });

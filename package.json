@@ -27,6 +27,8 @@
   "homepage": "https://github.com/cfv1984/Pomo",
   "devDependencies": {
     "gulp-jasmine": "^0.2.0",
-    "gulp": "^3.6.1"
+    "gulp": "^3.6.1",
+    "gulp-uglify": "^0.2.1",
+    "jasmine-async": "0.0.1"
   }
 }
