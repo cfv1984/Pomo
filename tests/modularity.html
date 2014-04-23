@@ -1,0 +1,59 @@
+<DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="gettext" type="text/x-gettext-translation" href="./po/pl_PL.po" />
+        <title>Pomo browser based tests</title>
+    </head>
+    <body>
+    <script src="../src/dist/pomo.js">
+    </script>
+    <script>
+        var tryTo = function(action){
+            return function(){
+                try{
+                    action.apply(action,arguments);
+                }
+                catch(e){
+                    console.log(
+                        'cannot run',
+                        'stack trace',
+                            e.stack,
+                        'exception',
+                        e
+                    );
+                }
+            }
+        };
+
+        window.addEventListener('load', function () {
+            Pomo.load('#: /path/to/file.php:110 \n\
+                msgctxt "some context" \n\
+                msgid "" \n\
+                "Multi" \n\
+                "Line" \n\
+                "msgid" \n\
+                msgstr "Una cadena de mensaje" \n\
+                \
+            ', {
+                format: 'po',
+                mode: 'literal',
+                translation_domain: 'default_domain'
+            });
+            Pomo.ready(function(){
+                var message = Pomo.getText("Multi\nLine\n\msgid\n", { domain: 'default_domain' });
+                console.info(
+                        'provided "',
+                        message.toString(),
+                        '" wanted "',
+                        'Una cadena de mensaje',
+                        '" equals?',
+                                message.toString() === 'Una cadena de mensaje'
+                                && 'Una cadena de mensaje' === message.toString()
+                );
+            });
+
+        });
+    </script>
+    </body>
+    </html>
