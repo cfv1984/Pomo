@@ -66,7 +66,7 @@ window.onload = function() {
         mode: 'link', //the new mode, tells Pomo to find a <link id="%LINK_ELEMENT_NAME%" and fetch it
         translation_domain: 'entirely_different_translation_domain' //this one we'll put in another translation_domain
     });
-
+        
     /*
     Pomo.load now returns a Deferred object, which can execute the
     passed function upon parsing all the remote data. The passed function will have this = the Pomo instance
